@@ -12,9 +12,11 @@
 
 int main(int argc, char *argv[])
 {
-	int i, ret, dev;
-	char fnd_pos, fnd_data, time_interval, time_count;
+	int i, dev;
+	long ret;
+	char fnd_pos, fnd_data, time_interval, time_count, data[4], mask;
 	fnd_pos = fnd_data = time_interval = time_count = 0;
+	mask = 0xFF;
 
 	if(argc != 4 || strlen(argv[3]) != 4)
 	{
@@ -41,10 +43,10 @@ int main(int argc, char *argv[])
 		printf("Device open error : %s\n", DEV_NAME);
 		exit(1);
 	}
-
-	//ret = syscall(376, fnd_pos, fnd_data, time_interval, time_count);
-
-	ioctl(dev, IOCTL_FPGA, 1);
+	//printf("pos : %d data : %d interval : %d count : %d\n",fnd_pos,fnd_data,time_interval,time_count);
+	ret = syscall(376, fnd_pos, fnd_data, time_interval, time_count);
+	
+	ioctl(dev, IOCTL_FPGA, ret);
 	close(dev);
 	return 0;
 }

@@ -1,0 +1,1 @@
+cmd_/home/embe/Downloads/HW/HW2/module/module.ko := arm-none-linux-gnueabi-ld -EL -r  -T /work/achroimx_kernel/scripts/module-common.lds --build-id  -o /home/embe/Downloads/HW/HW2/module/module.ko /home/embe/Downloads/HW/HW2/module/module.o /home/embe/Downloads/HW/HW2/module/module.mod.o
