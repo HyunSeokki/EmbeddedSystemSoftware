@@ -108,7 +108,7 @@ ssize_t iom_fpga_dot_write(struct file *inode, const char *gdata, size_t length,
 	int i;
 	unsigned short int _s_value;
 
-	for(i=0;i<length;i++)
+	for(i = 0;i < length;i++)
     {
       _s_value = fpga_number[(int)gdata[0]][i];
 			outw(_s_value,(unsigned int)iom_fpga_dot_addr+i*2);
@@ -122,7 +122,7 @@ ssize_t iom_fpga_text_lcd_write(struct file *inode, const char *gdata, size_t le
 	int i;
   unsigned short int _s_value = 0;
 
-	for(i=0;i<length;i++)
+	for(i = 0;i < length;i++)
   {
     _s_value = gdata[i] << 8 | gdata[i+1];
 		outw(_s_value,(unsigned int)iom_fpga_text_lcd_addr+i);
@@ -178,7 +178,7 @@ void display(void)
 	data_led[0] = led_arr[(int)userdata.gdata[1]];
 	data_dot[0] = userdata.gdata[1];
 	
-	for(i=0;i<4;i++)
+	for(i = 0;i < 4;i++)
 	{
 		if(i == userdata.gdata[0])		
 		{
@@ -189,7 +189,7 @@ void display(void)
 	}
 
 	strncpy(tmp, "20131574", 8);
-	for(i=0;i<16;i++)
+	for(i = 0;i < 16;i++)
 	{
 		if(userdata.pos1 <= i && i < userdata.pos1 + LEN_NUMBER)
 			data_lcd[i] = tmp[cnt++];
@@ -199,7 +199,7 @@ void display(void)
 
 	cnt = 16;
 	strncpy(tmp, "OhHyunSeok", 10);
-	for(i=16;i<32;i++)
+	for(i = 16;i < 32;i++)
 	{
 		if(userdata.pos2 + 16 <= i && i < userdata.pos2 + 16 + LEN_NAME)
 			data_lcd[i] = tmp[(cnt++) - 16];
@@ -216,7 +216,7 @@ void display(void)
 
 	if(check() == 1)
 	{
-		for(i=1;i<=8;i++)
+		for(i = 1;i <= 8;i++)
 			chk[i] = 0;
 		if(userdata.gdata[0] == 3)		
 			userdata.gdata[0] = 0;
@@ -224,7 +224,7 @@ void display(void)
 			userdata.gdata[0]++;
 	}
 	
-	userdata.gdata[1] = (userdata.gdata[1] == 8?1:(int)userdata.gdata[1]+1);
+	userdata.gdata[1] = (userdata.gdata[1] == 8?1:(int)userdata.gdata[1] + 1);
 	if(userdata.dir1 == 0)
 	{
 		if(userdata.pos1 == 16 - LEN_NUMBER)
@@ -271,7 +271,7 @@ void display(void)
 int check(void)
 {
 	int i;
-	for(i=1;i<=8;i++)
+	for(i = 1;i <= 8;i++)
 	{
 		if(chk[i] == 0)
 			return 0;
@@ -295,7 +295,7 @@ static long iom_dev_ioctl(struct file *file, unsigned int ioctl_num, unsigned lo
 	userdata.dir1 = 0;
 	userdata.dir2 = 0;
 
-	for(i=3;i>=0;i--)
+	for(i = 3;i >= 0;i--)
 	{
 		gdata[i] = (char)(ioctl_param & mask);
 		userdata.gdata[i] = gdata[i];
@@ -306,7 +306,7 @@ static long iom_dev_ioctl(struct file *file, unsigned int ioctl_num, unsigned lo
 	data_led[0] = led_arr[(int)gdata[1]];
 	data_dot[0] = gdata[1];
 	
-	for(i=0;i<4;i++)
+	for(i = 0;i < 4;i++)
 	{
 		if(i == gdata[0])		
 		{
@@ -317,7 +317,7 @@ static long iom_dev_ioctl(struct file *file, unsigned int ioctl_num, unsigned lo
 	}
 
 	strncpy(tmp, "20131574", 8);
-	for(i=0;i<16;i++)
+	for(i = 0;i < 16;i++)
 	{
 		if(userdata.pos1 <= i && i < userdata.pos1 + LEN_NUMBER)
 			data_lcd[i] = tmp[cnt++];
@@ -327,7 +327,7 @@ static long iom_dev_ioctl(struct file *file, unsigned int ioctl_num, unsigned lo
 
 	cnt = 16;
 	strncpy(tmp, "OhHyunSeok", 10);
-	for(i=16;i<32;i++)
+	for(i = 16;i < 32;i++)
 	{
 		if(userdata.pos2 + 16 <= i && i < userdata.pos2 + 16 + LEN_NAME)
 			data_lcd[i] = tmp[(cnt++) - 16];
@@ -351,7 +351,7 @@ static long iom_dev_ioctl(struct file *file, unsigned int ioctl_num, unsigned lo
 	
 	chk[(int)userdata.gdata[1]]++;
 
-	userdata.gdata[1] = (userdata.gdata[1] == 8?1:(int)userdata.gdata[1]+1);
+	userdata.gdata[1] = (userdata.gdata[1] == 8?1:(int)userdata.gdata[1] + 1);
 
 	return 0;
 }
