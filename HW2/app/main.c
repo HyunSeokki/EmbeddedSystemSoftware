@@ -23,10 +23,22 @@ int main(int argc, char *argv[])
 		printf("Please input the 3 parameters.\n");
 		return -1;
 	}
-
+	
 	time_interval = atoi(argv[1]);
 	time_count = atoi(argv[2]);
 
+	if(time_interval < 1 || time_interval > 100)
+	{
+		printf("First parameter must be between 1 and 100.\n");
+		return -1;
+	}
+
+	if(time_count < 1 || time_count > 100)
+	{
+		printf("Second parameter must be between 1 and 100.\n");
+		return -1;
+	}
+	
 	for(i = 0;i < strlen(argv[3]);i++)
 	{
 		if(argv[3][i] != '0')
@@ -43,10 +55,11 @@ int main(int argc, char *argv[])
 		printf("Device open error : %s\n", DEV_NAME);
 		exit(1);
 	}
-	//printf("pos : %d data : %d interval : %d count : %d\n",fnd_pos,fnd_data,time_interval,time_count);
+
 	ret = syscall(376, fnd_pos, fnd_data, time_interval, time_count);
 	
 	ioctl(dev, IOCTL_FPGA, ret);
 	close(dev);
+	
 	return 0;
 }
