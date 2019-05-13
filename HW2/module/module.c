@@ -43,6 +43,7 @@ int iom_dev_release(struct inode *minode, struct file *mfile);
 static long iom_dev_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param);
 void display(void);
 int check(void);
+void end(void);
 
 struct struct_timer {
 	struct timer_list timer;
@@ -110,7 +111,11 @@ ssize_t iom_fpga_dot_write(struct file *inode, const char *gdata, size_t length,
 
 	for(i = 0;i < length;i++)
     {
-      _s_value = fpga_number[(int)gdata[0]][i];
+			if(gdata[0] == 0)
+				_s_value = 0;
+			else
+      	_s_value = fpga_number[(int)gdata[0]][i];
+				
 			outw(_s_value,(unsigned int)iom_fpga_dot_addr+i*2);
     }
 	
@@ -124,7 +129,7 @@ ssize_t iom_fpga_text_lcd_write(struct file *inode, const char *gdata, size_t le
 
 	for(i = 0;i < length;i++)
   {
-    _s_value = gdata[i] << 8 | gdata[i+1];
+    _s_value = gdata[i] << 8 | gdata[i + 1];
 		outw(_s_value,(unsigned int)iom_fpga_text_lcd_addr+i);
 		i++;
   }
@@ -139,7 +144,7 @@ static void kernel_timer_blink(unsigned long timeout)
 	p_data->count--;
 	if( p_data->count == 0 )
 	{
-		//end
+		end();
 		return;
 	}
 
@@ -218,6 +223,7 @@ void display(void)
 	{
 		for(i = 1;i <= 8;i++)
 			chk[i] = 0;
+
 		if(userdata.gdata[0] == 3)		
 			userdata.gdata[0] = 0;
 		else
@@ -278,6 +284,24 @@ int check(void)
 	}
 
 	return 1;
+}
+
+void end(void)
+{
+	char data_fnd[4];
+	char data_led[2];
+	char data_dot[2];
+	char data_lcd[32];
+	
+	memset(data_fnd, 0, sizeof(data_fnd));
+	memset(data_led, 0, sizeof(data_led));
+	memset(data_dot, 0, sizeof(data_dot));
+	memset(data_lcd, 0x20, sizeof(data_lcd));
+
+	iom_fpga_fnd_write(userdata.inode, data_fnd, 4, 0);
+	iom_fpga_led_write(userdata.inode, data_led, 1, 0);
+	iom_fpga_dot_write(userdata.inode, data_dot, 10, 0);
+	iom_fpga_text_lcd_write(userdata.inode, data_lcd, 32, 0);
 }
 
 static long iom_dev_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param)
