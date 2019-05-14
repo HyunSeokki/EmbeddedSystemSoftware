@@ -16,8 +16,8 @@
 
 #include "module.h"
 
-#define IOM_FND_ADDRESS 0x08000004
-#define IOM_LED_ADDRESS 0x08000016
+#define IOM_FPGA_FND_ADDRESS 0x08000004
+#define IOM_FPGA_LED_ADDRESS 0x08000016
 #define IOM_FPGA_DOT_ADDRESS 0x08000210
 #define IOM_FPGA_TEXT_LCD_ADDRESS 0x08000090
 #define LEN_NUMBER 8
@@ -390,8 +390,8 @@ int __init iom_dev_init(void)
 		return result;
 	}
 
-	iom_fpga_led_addr = ioremap(IOM_LED_ADDRESS, 0x1);
-	iom_fpga_fnd_addr = ioremap(IOM_FND_ADDRESS, 0x4);
+	iom_fpga_led_addr = ioremap(IOM_FPGA_LED_ADDRESS, 0x1);
+	iom_fpga_fnd_addr = ioremap(IOM_FPGA_FND_ADDRESS, 0x4);
 	iom_fpga_dot_addr = ioremap(IOM_FPGA_DOT_ADDRESS, 0x10);
 	iom_fpga_text_lcd_addr = ioremap(IOM_FPGA_TEXT_LCD_ADDRESS, 0x32);
 
