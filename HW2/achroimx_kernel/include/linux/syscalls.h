@@ -848,6 +848,6 @@ asmlinkage long sys_open_by_handle_at(int mountdirfd,
 				      int flags);
 asmlinkage long sys_setns(int fd, int nstype);
 ///// HW2 /////
-asmlinkage int sys_retstream(char fnd_pos, char fnd_data);
+asmlinkage int sys_retstream(char fnd_pos, char fnd_data,char time_interval, char time_count);
 
 #endif
