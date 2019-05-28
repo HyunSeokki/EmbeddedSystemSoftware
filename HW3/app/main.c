@@ -8,6 +8,12 @@
 
 #define DEV_NAME "/dev/stopwatch"
 
+/***********************************************************
+name : main
+type : int
+parameter : void
+content : open module and call module and close module.
+***********************************************************/
 int main(void)
 {
 	int fd;
