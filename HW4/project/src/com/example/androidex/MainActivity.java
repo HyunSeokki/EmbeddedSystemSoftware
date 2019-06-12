@@ -11,6 +11,12 @@ import android.widget.LinearLayout;
 public class MainActivity extends Activity{
 	
 	LinearLayout linear;
+	
+	/* Function Name : onCreate
+	 * Type : public void
+	 * Parameter : Bundle savedInstanceState
+	 * Contents : the event that runs when the activity is first called.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -21,7 +27,7 @@ public class MainActivity extends Activity{
 		OnClickListener listener=new OnClickListener(){
 			public void onClick(View v){
 				Intent intent=new Intent(MainActivity.this, GameActivity.class);
-				startActivity(intent);
+				startActivity(intent); // GameActivity starts
 			}
 		};
 		btn.setOnClickListener(listener);

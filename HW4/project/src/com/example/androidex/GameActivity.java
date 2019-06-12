@@ -3,9 +3,14 @@ package com.example.androidex;
 import java.util.Random;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -13,31 +18,56 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class GameActivity extends Activity implements View.OnClickListener{
 	
 	LinearLayout linear;
 	int row_size = 0;
 	int col_size = 0;
-	int height = 390;
+	int height = 360;
 	int width = 1024;
 	int blank = 0;
 	int[] num = new int[26];
+	private IMyTimerService binder;	
+	private TextView tv;
+	private boolean running = true;
 	String str;
 	String[] parseStr;
 	Random pos_generator = new Random();
 	Random num_generator = new Random();
-	GameActivity gameActivity;
+		
+	private ServiceConnection connection = new ServiceConnection(){
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service){
+			binder = IMyTimerService.Stub.asInterface(service);
+		}
+		
+		@Override
+		public void onServiceDisconnected(ComponentName name){
+			
+		}
+	};
 	
-	public void clearButtons(int num){
+	/* Function Name : clearButtons
+	 * Type : public void
+	 * Parameter : int num
+	 * Contents : remove buttons
+	 */
+	public void clearButtons(int num){		
 		for(int i=0; i < num; i++)
 		{
-			LinearLayout childView = (LinearLayout)linear.getChildAt(2);
+			LinearLayout childView = (LinearLayout)linear.getChildAt(3);
 			childView.removeAllViewsInLayout();
 			linear.removeView(childView);
 		}
 	}
 		
+	/* Function Name : makeButtons
+	 * Type : public void
+	 * Parameter : void
+	 * Contents : make buttons using number that you input
+	 */
 	public void makeButtons(){
 		int random_pos = pos_generator.nextInt((row_size * col_size));
 		int random_num;
@@ -75,10 +105,13 @@ public class GameActivity extends Activity implements View.OnClickListener{
 			}
 			linear.addView(row);					
 		}
-	}
+	}	
 	
-	
-	
+	/* Function Name : moveButtons
+	 * Type : public void
+	 * Parameter : void
+	 * Contents : clear buttons and remake buttons
+	 */
 	public void moveButtons(){
 		for(int i=0;i<row_size;i++)
 		{
@@ -106,6 +139,11 @@ public class GameActivity extends Activity implements View.OnClickListener{
 		}
 	}
 	
+	/* Function Name : onClick
+	 * Type : public void
+	 * Parameter : View v
+	 * Contents : button event that push puzzle
+	 */
 	public void onClick(View v){
 		Button data = (Button)v;
 		int blank_row, blank_col, btn_row ,btn_col;
@@ -153,29 +191,54 @@ public class GameActivity extends Activity implements View.OnClickListener{
 			moveButtons();
 		}
 		
-		if(check() == 1)
-			finish();
+		check();
 	}
 	
-	public int check(){
-		Log.v("check","start");
+	/* Function Name : IsNumber
+	 * Type : public boolean
+	 * Parameter : String str_num
+	 * Contents : check whether parameter is number or not 
+	 */
+	public boolean IsNumber(String str_num){
+		try{
+			int str = Integer.parseInt(str_num);
+		}
+		catch(NumberFormatException e){
+			return false;
+		}
+		return true;
+	}
+	
+	/* Function Name : check
+	 * Type : public void
+	 * Parameter : void
+	 * Contents : check puzzle whether order is correct or not
+	 */
+	public void check(){
 		for(int i=0;i<col_size;i++)
 		{
 			for(int j=0;j<row_size;j++)
 			{				
 				if(blank == i*row_size+j && blank != (row_size * col_size - 1))
-					return 0;
+					return;
 				else if(blank == i*row_size+j && blank == (row_size * col_size - 1))
 					break;
 				else if(num[i*row_size+j] != i*row_size+j+1)
-					return 0;
-				
+					return;				
 			}
 		}
-
-		return 1;
+		Intent intent = new Intent(GameActivity.this, MyTimerService.class);
+		unbindService(connection); // service end
+		running = false;
+		
+		finish();
 	}
 	
+	/* Function Name : onCreate
+	 * Type : public void
+	 * Parameter : Bundle savedInstanceState
+	 * Contents : the event that runs when the activity is first called.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -184,7 +247,8 @@ public class GameActivity extends Activity implements View.OnClickListener{
 		linear = (LinearLayout)findViewById(R.id.container);
 		linear.setOrientation(LinearLayout.VERTICAL);
 		Button btn=(Button)findViewById(R.id.button1);
-				
+		tv = (TextView)findViewById(R.id.textView1);
+		
 		OnClickListener listener=new OnClickListener(){
 			public void onClick(View v){
 				InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -196,20 +260,64 @@ public class GameActivity extends Activity implements View.OnClickListener{
 				
 				if(parseStr.length != 2)
 					return;
+				if(IsNumber(parseStr[0]) == false || IsNumber(parseStr[1]) == false)
+					return;
 				
 				int ex_row = row_size;
 				row_size = Integer.parseInt(parseStr[0]);
 				col_size = Integer.parseInt(parseStr[1]);
 
-				if(row_size > 5 || col_size > 5 || (row_size == 1 && col_size == 1))
+				if(row_size > 5 || col_size > 5 || (row_size < 2 && col_size < 2))
 					return;
-				
 				if(ex_row != 0)
+				{
 					clearButtons(ex_row);
+					
+					Intent intent = new Intent(GameActivity.this, MyTimerService.class);
+					unbindService(connection);
+					running = false;
+				}			
 			
+				Intent intent = new Intent(GameActivity.this, MyTimerService.class);
+				bindService(intent, connection, BIND_AUTO_CREATE); // service start
+				running = true;
+				new Thread(new GetTimeThread()).start();
+				
 				makeButtons();
 			}
 		};
 		btn.setOnClickListener(listener);
+	}
+	
+	private class GetTimeThread implements Runnable{
+		private Handler handler = new Handler();
+		
+		@Override
+		public void run(){
+			while(running){
+				if(binder == null)
+					continue;
+				
+				handler.post(new Runnable(){
+					@Override
+					public void run(){
+						try{
+							String min = String.format("%02d",binder.getTime() / 60);
+							String sec = String.format("%02d",binder.getTime() % 60);
+							tv.setText(min + ":" + sec);
+							
+						}catch(RemoteException e){
+							e.printStackTrace();
+						}
+					}
+				});
+				
+				try{
+					Thread.sleep(500);					
+				}catch(InterruptedException e){
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }
