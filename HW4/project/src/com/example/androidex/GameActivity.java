@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -31,7 +32,7 @@ public class GameActivity extends Activity implements View.OnClickListener{
 	int[] num = new int[26];
 	private IMyTimerService binder;	
 	private TextView tv;
-	private boolean running = true;
+	private boolean running = false;
 	String str;
 	String[] parseStr;
 	Random pos_generator = new Random();
@@ -263,16 +264,22 @@ public class GameActivity extends Activity implements View.OnClickListener{
 				if(IsNumber(parseStr[0]) == false || IsNumber(parseStr[1]) == false)
 					return;
 				
-				int ex_row = row_size;
-				row_size = Integer.parseInt(parseStr[0]);
-				col_size = Integer.parseInt(parseStr[1]);
+				int temp_row;
+				int temp_col;
 
-				if(row_size > 5 || col_size > 5 || (row_size < 2 && col_size < 2))
+				temp_row = Integer.parseInt(parseStr[0]);
+				temp_col = Integer.parseInt(parseStr[1]);
+
+				if(temp_row > 5 || temp_col > 5 || (temp_row < 2 && temp_col < 2))
 					return;
+				
+				int ex_row = row_size;
+				row_size = temp_row;
+				col_size = temp_col;
+				
 				if(ex_row != 0)
 				{
-					clearButtons(ex_row);
-					
+					clearButtons(ex_row);					
 					Intent intent = new Intent(GameActivity.this, MyTimerService.class);
 					unbindService(connection);
 					running = false;
